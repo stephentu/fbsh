@@ -1,4 +1,15 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
+
+# require minimum version
+FBSH_MIN_PYTHON_VERSION = "2.6.0" # major.minor.patchlevel
+class UnsupportedVersionError(EnvironmentError): pass
+try:
+  import platform # added in python2.3
+  if platform.python_version() < FBSH_MIN_PYTHON_VERSION:
+    raise UnsupportedVersionError
+except (UnsupportedVersionError, ImportError):
+    print "Error: fbsh requires python >=", FBSH_MIN_PYTHON_VERSION
+    exit(1)
 
 import atexit, os, readline
 import sys, traceback, time
