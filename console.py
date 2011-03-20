@@ -1,7 +1,19 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
+
+# check python version
+import sys
+if sys.version < '2.6':
+  print >> sys.stderr, "ERROR: Python >= 2.6 required"
+  sys.exit(1)
+
+# check for ssl support
+import httplib
+if not hasattr(httplib, 'HTTPS'):
+  print >> sys.stderr, "ERROR: Your python client does not support HTTPS"
+  sys.exit(1)
 
 import atexit, os, readline
-import sys, traceback, time
+import traceback, time
 import getpass, re, json
 
 import fbsh
