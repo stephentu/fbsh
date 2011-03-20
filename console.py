@@ -269,18 +269,17 @@ while True:
     if cmd:
       tokens = re.split('\s*', cmd.strip())
       cmdtoken = tokens[0]
-      if cmdtoken in COMMANDS.keys():
-        try:
-          COMMANDS[cmdtoken][0](tokens)
-        except NotLoggedInException:
-          print "You need to be logged in. Type 'login' to do so."
-        #except Exception as ex:
-        #  print "Caught unexpected exception:", ex.value
-        #  exc_type, exc_value, exc_traceback = sys.exc_info()
-        #  traceback.print_exception(exc_type, exc_value, exc_traceback,
-        #                            limit=10, file=sys.stdout)
-      else:
-        print "Unknown command: %s" % tokens[0]
+      try:
+        COMMANDS[cmdtoken][0](tokens)
+      except NotLoggedInException:
+        print "You need to be logged in. Type 'login' to do so."
+      except KeyError:
+        print "Unknown command:", cmdtoken
+      #except Exception as ex:
+      #  print "Caught unexpected exception:", ex.value
+      #  exc_type, exc_value, exc_traceback = sys.exc_info()
+      #  traceback.print_exception(exc_type, exc_value, exc_traceback,
+      #                            limit=10, file=sys.stdout)
   except EOFError:
     print
     __handle__exit()
