@@ -116,6 +116,7 @@ def __handle__logout(args=[]):
   was_logged_in = is_logged_in()
 
   # clear auth state regardless
+  global ACCESS_TOKEN, EXPIRES, NAME
   ACCESS_TOKEN = EXPIRES = NAME = None
   try:
     fp = open(tokenfile, 'w')
