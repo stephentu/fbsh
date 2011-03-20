@@ -284,3 +284,6 @@ while True:
   except EOFError:
     print
     __handle__exit()
+  except KeyboardInterrupt:
+    print
+    print "Command cancelled. Type Ctrl-D or 'exit' to quit."
