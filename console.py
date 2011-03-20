@@ -96,6 +96,10 @@ def __handle__login(args):
   assert is_logged_in()
 
 def __handle__logout(args=[]):
+  # remember if the user was logged in for cosmetic reasons
+  was_logged_in = is_logged_in()
+
+  # clear auth state regardless
   ACCESS_TOKEN = EXPIRES = NAME = None
   try:
     fp = open(tokenfile, 'w')
@@ -103,9 +107,14 @@ def __handle__logout(args=[]):
   except IOError:
     pass
 
-  print "Successfully logged out"
+  if was_logged_in:
+    print "Successfully logged out."
+  else:
+    print "Not logged in."
 
 def __handle__exit(args=[]):
+  if is_logged_in():
+    __handle__logout()
   print "Bye!"
   raise SystemExit
 
