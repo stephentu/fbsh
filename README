@@ -1,0 +1,9 @@
+This is an attempt to expose Facebook to the commandline.
+
+So far the only things you can do are to read your profile, newsfeed,
+and post a status update.
+
+The only dependency is BeautifulSoup (http://www.crummy.com/software/BeautifulSoup/)
+
+Usage:
+$ ./console.py
