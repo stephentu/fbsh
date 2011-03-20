@@ -218,12 +218,12 @@ def __handle__profile(args):
 
 class Cmd():
   def __init__(self, handler, usage_str, desc_str):
-    self.handler = handler
+    self._handler = handler
     self.usage_str = usage_str
     self.desc_str = desc_str
 
   def __call__(self, args):
-    return self.handler(args)
+    return self._handler(args)
 
 # 'name'         : (handler, usage, description),
 COMMANDS = {
