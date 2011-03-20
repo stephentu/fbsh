@@ -95,7 +95,7 @@ def __handle__login(args):
   print "Successfully logged in as", name
   assert is_logged_in()
 
-def __handle__logout(args):
+def __handle__logout(args=[]):
   ACCESS_TOKEN = EXPIRES = NAME = None
   try:
     fp = open(tokenfile, 'w')
@@ -105,7 +105,7 @@ def __handle__logout(args):
 
   print "Successfully logged out"
 
-def __handle__exit(args):
+def __handle__exit(args=[]):
   print "Bye!"
   raise SystemExit
 
@@ -256,4 +256,4 @@ while True:
         print "Unknown command: %s" % tokens[0]
   except EOFError:
     print
-    __handle__exit([])
+    __handle__exit()
