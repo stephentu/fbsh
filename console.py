@@ -74,7 +74,9 @@ def __handle__help(args):
         print "Not a command:", cmdarg
   else:
     print "Available commands:"
-    for cmd in FULL_COMMANDS.keys():
+    cmds = FULL_COMMANDS.keys()
+    cmds.sort()
+    for cmd in cmds:
       print "  %s%s" % (cmd.ljust(20), FULL_COMMANDS[cmd][2])
     print "Run 'help <command>' to see usage details"
 
