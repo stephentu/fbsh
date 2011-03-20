@@ -105,6 +105,10 @@ def __handle__logout(args):
 
   print "Successfully logged out"
 
+def __handle__exit(args):
+  print "Bye!"
+  raise SystemExit
+
 __default_indent_incr = lambda indent: indent + '  '
 def __render_feed_item(item, ident='', ident_incr=__default_indent_incr):
 
@@ -195,6 +199,7 @@ COMMANDS = {
   'post-link'    : __handle__post_link,
   'post-message' : __handle__post_message,
   'profile'      : __handle__profile,
+  'exit'         : __handle__exit,
 }
 
 # setup completion
@@ -233,18 +238,22 @@ if is_logged_in():
   print "Logged in as %s" % NAME
 
 while True:
-  cmd = raw_input('> ')
-  if cmd:
-    tokens = re.split('\s+', cmd)
-    if tokens[0] in COMMANDS:
-      try:
-        COMMANDS[tokens[0]](tokens)
-      except NotLoggedInException:
-        print "You need to be logged in. Type 'login' to do so."
-      #except Exception as ex:
-      #  print "Caught unexpected exception:", ex.value
-      #  exc_type, exc_value, exc_traceback = sys.exc_info()
-      #  traceback.print_exception(exc_type, exc_value, exc_traceback,
-      #                            limit=10, file=sys.stdout)
-    else:
-      print "Unknown command: %s" % tokens[0]
+  try:
+    cmd = raw_input('> ')
+    if cmd:
+      tokens = re.split('\s+', cmd)
+      if tokens[0] in COMMANDS:
+        try:
+          COMMANDS[tokens[0]](tokens)
+        except NotLoggedInException:
+          print "You need to be logged in. Type 'login' to do so."
+        #except Exception as ex:
+        #  print "Caught unexpected exception:", ex.value
+        #  exc_type, exc_value, exc_traceback = sys.exc_info()
+        #  traceback.print_exception(exc_type, exc_value, exc_traceback,
+        #                            limit=10, file=sys.stdout)
+      else:
+        print "Unknown command: %s" % tokens[0]
+  except EOFError:
+    print
+    __handle__exit([])
