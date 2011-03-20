@@ -67,9 +67,9 @@ def __handle__help(args):
       try:
         fullcmdarg = COMMANDS[cmdarg]
         print "NAME:"
-        print "    %s -- %s" % (cmdarg, fullcmdarg.usage_str)
+        print "   %s -- %s" % (cmdarg, fullcmdarg.desc_str)
         print "SYNOPSIS:"
-        print "   ", fullcmdarg.desc_str
+        print "   >", fullcmdarg.usage_str
       except (KeyError, IndexError):
         print "Not a command:", cmdarg
   else:
