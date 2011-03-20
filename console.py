@@ -147,9 +147,25 @@ def __handle__newsfeed(args):
   for item in newsfeed:
     __render_feed_item(item)
 
-def __handle__post_status(args):
+def __handle__post_link(args):
   require_login()
-  msg = raw_input('>>> ')
+  if len(args) == 1:
+    link = raw_input('Link: ')
+    msg  = raw_input('Message (press enter for empty message): ')
+  else:
+    assert len(args) > 1
+    link = args[1]
+    msg  = ' '.join(args[2:])
+  fbsh.post_graph_endpoint(ACCESS_TOKEN, 'me/feed', {'link':link,'message':msg})
+  print "Successfully posted link: %s" % link
+
+def __handle__post_message(args):
+  require_login()
+  if len(args) == 1:
+    msg = raw_input('Message: ')
+  else:
+    assert len(args) > 1
+    msg = ' '.join(args[1:])
   fbsh.post_graph_endpoint(ACCESS_TOKEN, 'me/feed', {'message':msg})
   print "Successfully posted message: %s" % msg
 
@@ -162,12 +178,13 @@ def __handle__profile(args):
     __render_feed_item(item)
 
 COMMANDS = {
-  'help'        : __handle__help,
-  'login'       : __handle__login,
-  'logout'      : __handle__logout,
-  'newsfeed'    : __handle__newsfeed,
-  'post-status' : __handle__post_status,
-  'profile'     : __handle__profile,
+  'help'         : __handle__help,
+  'login'        : __handle__login,
+  'logout'       : __handle__logout,
+  'newsfeed'     : __handle__newsfeed,
+  'post-link'    : __handle__post_link,
+  'post-message' : __handle__post_message,
+  'profile'      : __handle__profile,
 }
 
 # setup completion
