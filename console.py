@@ -90,6 +90,15 @@ def __handle__login(args):
       (tok, exp) = fbsh.do_login(email, passwd)
     except fbsh.BadEmailAndPass:
       print "Bad email and/or password"
+    except Exception as excp:
+      try:
+        reason = "unknown error"
+        reason = excp.message
+        reason = excp.reason
+      except AttributeError:
+        pass
+      print "Error logging in:", reason
+      return
 
   assert tok != None
 
