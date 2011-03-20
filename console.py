@@ -65,7 +65,7 @@ def __handle__help(args):
   if len(args) >= 2:
     for cmdarg in args[1:]:
       try:
-        fullcmdarg = FULL_COMMANDS[cmdarg]
+        fullcmdarg = COMMANDS[cmdarg]
         print "NAME:"
         print "    %s -- %s" % (cmdarg, fullcmdarg[2])
         print "SYNOPSIS:"
@@ -74,10 +74,10 @@ def __handle__help(args):
         print "Not a command:", cmdarg
   else:
     print "Available commands:"
-    cmds = FULL_COMMANDS.keys()
+    cmds = COMMANDS.keys()
     cmds.sort()
     for cmd in cmds:
-      print "  %s%s" % (cmd.ljust(20), FULL_COMMANDS[cmd][2])
+      print "  %s%s" % (cmd.ljust(20), COMMANDS[cmd][2])
     print "Run 'help <command>' to see usage details"
 
 def __handle__login(args):
@@ -217,7 +217,7 @@ def __handle__profile(args):
     __render_feed_item(item)
 
 # 'name'         : (handler, usage, description),
-FULL_COMMANDS = {
+COMMANDS = {
   'help'         : (__handle__help, "help [ command ]", "Show available commands"),
   'login'        : (__handle__login, "login", "Login via username/password"),
   'logout'       : (__handle__logout, "logout", "Logout and clear local state"),
@@ -227,9 +227,6 @@ FULL_COMMANDS = {
   'profile'      : (__handle__profile, "profile", "Show profile"),
   'exit'         : (__handle__exit, "exit", "Exit fbsh"),
 }
-COMMANDS = {}
-for cmdkey in FULL_COMMANDS.keys():
-  COMMANDS[cmdkey] = FULL_COMMANDS[cmdkey][0]
 
 # setup completion
 # http://blog.doughellmann.com/2008/11/pymotw-readline.html
@@ -271,9 +268,10 @@ while True:
     cmd = raw_input('> ')
     if cmd:
       tokens = re.split('\s*', cmd.strip())
-      if tokens[0] in COMMANDS:
+      cmdtoken = tokens[0]
+      if cmdtoken in COMMANDS.keys():
         try:
-          COMMANDS[tokens[0]](tokens)
+          COMMANDS[cmdtoken][0](tokens)
         except NotLoggedInException:
           print "You need to be logged in. Type 'login' to do so."
         #except Exception as ex:
