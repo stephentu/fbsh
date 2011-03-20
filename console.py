@@ -62,11 +62,17 @@ def require_login():
     raise NotLoggedInException()
 
 def __handle__help(args):
-  try:
-    cmdarg = args[1]
-    print "%s -- %s" % (cmdarg, FULL_COMMANDS[cmdarg][2])
-    print "Usage:", FULL_COMMANDS[cmdarg][1]
-  except IndexError:
+  if len(args) >= 2:
+    for cmdarg in args[1:]:
+      try:
+        fullcmdarg = FULL_COMMANDS[cmdarg]
+        print "NAME:"
+        print "    %s -- %s" % (cmdarg, fullcmdarg[2])
+        print "SYNOPSIS:"
+        print "   ", fullcmdarg[1]
+      except (KeyError, IndexError):
+        print "Not a command:", cmdarg
+  else:
     print "Available commands:"
     for cmd in FULL_COMMANDS.keys():
       print "  %s%s" % (cmd.ljust(20), FULL_COMMANDS[cmd][2])
