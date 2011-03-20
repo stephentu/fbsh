@@ -67,9 +67,9 @@ def __handle__help(args):
       try:
         fullcmdarg = COMMANDS[cmdarg]
         print "NAME:"
-        print "    %s -- %s" % (cmdarg, fullcmdarg[2])
+        print "    %s -- %s" % (cmdarg, fullcmdarg.usage_str)
         print "SYNOPSIS:"
-        print "   ", fullcmdarg[1]
+        print "   ", fullcmdarg.desc_str
       except (KeyError, IndexError):
         print "Not a command:", cmdarg
   else:
@@ -77,7 +77,7 @@ def __handle__help(args):
     cmds = COMMANDS.keys()
     cmds.sort()
     for cmd in cmds:
-      print "  %s%s" % (cmd.ljust(20), COMMANDS[cmd][2])
+      print "  %s%s" % (cmd.ljust(20), COMMANDS[cmd].desc_str)
     print "Run 'help <command>' to see usage details"
 
 def __handle__login(args):
@@ -216,16 +216,25 @@ def __handle__profile(args):
   for item in profile:
     __render_feed_item(item)
 
+class Cmd():
+  def __init__(self, handler, usage_str, desc_str):
+    self.handler = handler
+    self.usage_str = usage_str
+    self.desc_str = desc_str
+
+  def __call__(self, args):
+    return self.handler(args)
+
 # 'name'         : (handler, usage, description),
 COMMANDS = {
-  'help'         : (__handle__help, "help [ command ]", "Show available commands"),
-  'login'        : (__handle__login, "login", "Login via username/password"),
-  'logout'       : (__handle__logout, "logout", "Logout and clear local state"),
-  'newsfeed'     : (__handle__newsfeed, "newsfeed", "Show newsfeed"),
-  'post-link'    : (__handle__post_link, "post-link", "Post a link"),
-  'post-message' : (__handle__post_message, "post-message", "Post a message"),
-  'profile'      : (__handle__profile, "profile", "Show profile"),
-  'exit'         : (__handle__exit, "exit", "Exit fbsh"),
+  'help'         : Cmd(__handle__help, "help [ command ]", "Show available commands"),
+  'login'        : Cmd(__handle__login, "login", "Login via username/password"),
+  'logout'       : Cmd(__handle__logout, "logout", "Logout and clear local state"),
+  'newsfeed'     : Cmd(__handle__newsfeed, "newsfeed", "Show newsfeed"),
+  'post-link'    : Cmd(__handle__post_link, "post-link", "Post a link"),
+  'post-message' : Cmd(__handle__post_message, "post-message", "Post a message"),
+  'profile'      : Cmd(__handle__profile, "profile", "Show profile"),
+  'exit'         : Cmd(__handle__exit, "exit", "Exit fbsh"),
 }
 
 # setup completion
@@ -270,7 +279,7 @@ while True:
       tokens = re.split('\s*', cmd.strip())
       cmdtoken = tokens[0]
       try:
-        COMMANDS[cmdtoken][0](tokens)
+        COMMANDS[cmdtoken](tokens)
       except NotLoggedInException:
         print "You need to be logged in. Type 'login' to do so."
       except KeyError:
