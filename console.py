@@ -268,7 +268,7 @@ while True:
   try:
     cmd = raw_input('> ')
     if cmd:
-      tokens = re.split('\s+', cmd)
+      tokens = re.split('\s*', cmd.strip())
       if tokens[0] in COMMANDS:
         try:
           COMMANDS[tokens[0]](tokens)
