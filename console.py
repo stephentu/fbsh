@@ -252,8 +252,8 @@ while True:
         #  exc_type, exc_value, exc_traceback = sys.exc_info()
         #  traceback.print_exception(exc_type, exc_value, exc_traceback,
         #                            limit=10, file=sys.stdout)
-    else:
-      print "Unknown command: %s" % tokens[0]
+      else:
+        print "Unknown command: %s" % tokens[0]
   except EOFError:
     print
     __handle__exit([])
