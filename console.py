@@ -72,7 +72,6 @@ def __handle__login(args):
 
     try:
       (tok, exp) = fbsh.do_login(email, passwd)
-      break
     except fbsh.BadEmailAndPass:
       print "Bad email and/or password"
 
