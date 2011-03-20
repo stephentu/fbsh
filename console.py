@@ -62,7 +62,15 @@ def require_login():
     raise NotLoggedInException()
 
 def __handle__help(args):
-  print COMMANDS.keys() 
+  try:
+    cmdarg = args[1]
+    print "%s -- %s" % (cmdarg, FULL_COMMANDS[cmdarg][2])
+    print "Usage:", FULL_COMMANDS[cmdarg][1]
+  except IndexError:
+    print "Available commands:"
+    for cmd in FULL_COMMANDS.keys():
+      print "  %s%s" % (cmd.ljust(20), FULL_COMMANDS[cmd][2])
+    print "Run 'help <command>' to see usage details"
 
 def __handle__login(args):
 
@@ -200,16 +208,20 @@ def __handle__profile(args):
   for item in profile:
     __render_feed_item(item)
 
-COMMANDS = {
-  'help'         : __handle__help,
-  'login'        : __handle__login,
-  'logout'       : __handle__logout,
-  'newsfeed'     : __handle__newsfeed,
-  'post-link'    : __handle__post_link,
-  'post-message' : __handle__post_message,
-  'profile'      : __handle__profile,
-  'exit'         : __handle__exit,
+# 'name'         : (handler, usage, description),
+FULL_COMMANDS = {
+  'help'         : (__handle__help, "help [ command ]", "Show available commands"),
+  'login'        : (__handle__login, "login", "Login via username/password"),
+  'logout'       : (__handle__logout, "logout", "Logout and clear local state"),
+  'newsfeed'     : (__handle__newsfeed, "newsfeed", "Show newsfeed"),
+  'post-link'    : (__handle__post_link, "post-link", "Post a link"),
+  'post-message' : (__handle__post_message, "post-message", "Post a message"),
+  'profile'      : (__handle__profile, "profile", "Show profile"),
+  'exit'         : (__handle__exit, "exit", "Exit fbsh"),
 }
+COMMANDS = {}
+for cmdkey in FULL_COMMANDS.keys():
+  COMMANDS[cmdkey] = FULL_COMMANDS[cmdkey][0]
 
 # setup completion
 # http://blog.doughellmann.com/2008/11/pymotw-readline.html
