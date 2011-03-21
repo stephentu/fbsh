@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
-# require minimum version
-FBSH_MIN_PYTHON_VERSION = "2.6.0" # major.minor.patchlevel
-class UnsupportedVersionError(EnvironmentError): pass
-try:
-  import platform # added in python2.3
-  if platform.python_version() < FBSH_MIN_PYTHON_VERSION:
-    raise UnsupportedVersionError
-except (UnsupportedVersionError, ImportError):
-    print "Error: fbsh requires python >=", FBSH_MIN_PYTHON_VERSION
-    exit(1)
+# check python version
+import sys
+if sys.version < '2.6':
+  print >> sys.stderr, "ERROR: Python >= 2.6 required"
+  sys.exit(1)
+
+# check for ssl support
+import httplib
+if not hasattr(httplib, 'HTTPS'):
+  print >> sys.stderr, "ERROR: Your python client does not support HTTPS"
+  sys.exit(1)
 
 import atexit, os, readline
-import sys, traceback, time
+import traceback, time
 import getpass, re, json
 
 import fbsh
@@ -62,7 +63,23 @@ def require_login():
     raise NotLoggedInException()
 
 def __handle__help(args):
-  print COMMANDS.keys() 
+  if len(args) >= 2:
+    for cmdarg in args[1:]:
+      try:
+        fullcmdarg = COMMANDS[cmdarg]
+        print "NAME:"
+        print "   %s -- %s" % (cmdarg, fullcmdarg.desc_str)
+        print "SYNOPSIS:"
+        print "   >", fullcmdarg.usage_str
+      except (KeyError, IndexError):
+        print "Not a command:", cmdarg
+  else:
+    print "Available commands:"
+    cmds = COMMANDS.keys()
+    cmds.sort()
+    for cmd in cmds:
+      print "  %s%s" % (cmd.ljust(20), COMMANDS[cmd].desc_str)
+    print "Run 'help <command>' to see usage details"
 
 def __handle__login(args):
 
@@ -72,8 +89,18 @@ def __handle__login(args):
 
     try:
       (tok, exp) = fbsh.do_login(email, passwd)
+      break
     except fbsh.BadEmailAndPass:
       print "Bad email and/or password"
+    except Exception as excp:
+      try:
+        reason = "unknown error"
+        reason = excp.message
+        reason = excp.reason
+      except AttributeError:
+        pass
+      print "Error logging in:", reason
+      return
 
   assert tok != None
 
@@ -95,7 +122,12 @@ def __handle__login(args):
   print "Successfully logged in as", name
   assert is_logged_in()
 
-def __handle__logout(args):
+def __handle__logout(args=[]):
+  # remember if the user was logged in for cosmetic reasons
+  was_logged_in = is_logged_in()
+
+  # clear auth state regardless
+  global ACCESS_TOKEN, EXPIRES, NAME
   ACCESS_TOKEN = EXPIRES = NAME = None
   try:
     fp = open(tokenfile, 'w')
@@ -103,7 +135,16 @@ def __handle__logout(args):
   except IOError:
     pass
 
-  print "Successfully logged out"
+  if was_logged_in:
+    print "Successfully logged out."
+  else:
+    print "Not logged in."
+
+def __handle__exit(args=[]):
+  if is_logged_in():
+    __handle__logout()
+  print "Bye!"
+  raise SystemExit
 
 def __handle__exit(args):
   print "Bye!"
@@ -191,15 +232,25 @@ def __handle__profile(args):
   for item in profile:
     __render_feed_item(item)
 
+class Cmd():
+  def __init__(self, handler, usage_str, desc_str):
+    self._handler = handler
+    self.usage_str = usage_str
+    self.desc_str = desc_str
+
+  def __call__(self, args):
+    return self._handler(args)
+
+# 'name'         : (handler, usage, description),
 COMMANDS = {
-  'help'         : __handle__help,
-  'login'        : __handle__login,
-  'logout'       : __handle__logout,
-  'newsfeed'     : __handle__newsfeed,
-  'post-link'    : __handle__post_link,
-  'post-message' : __handle__post_message,
-  'profile'      : __handle__profile,
-  'exit'         : __handle__exit,
+  'help'         : Cmd(__handle__help, "help [ command ]", "Show available commands"),
+  'login'        : Cmd(__handle__login, "login", "Login via username/password"),
+  'logout'       : Cmd(__handle__logout, "logout", "Logout and clear local state"),
+  'newsfeed'     : Cmd(__handle__newsfeed, "newsfeed", "Show newsfeed"),
+  'post-link'    : Cmd(__handle__post_link, "post-link", "Post a link"),
+  'post-message' : Cmd(__handle__post_message, "post-message", "Post a message"),
+  'profile'      : Cmd(__handle__profile, "profile", "Show profile"),
+  'exit'         : Cmd(__handle__exit, "exit", "Exit fbsh"),
 }
 
 # setup completion
@@ -241,19 +292,22 @@ while True:
   try:
     cmd = raw_input('> ')
     if cmd:
-      tokens = re.split('\s+', cmd)
-      if tokens[0] in COMMANDS:
-        try:
-          COMMANDS[tokens[0]](tokens)
-        except NotLoggedInException:
-          print "You need to be logged in. Type 'login' to do so."
-        #except Exception as ex:
-        #  print "Caught unexpected exception:", ex.value
-        #  exc_type, exc_value, exc_traceback = sys.exc_info()
-        #  traceback.print_exception(exc_type, exc_value, exc_traceback,
-        #                            limit=10, file=sys.stdout)
-      else:
-        print "Unknown command: %s" % tokens[0]
+      tokens = re.split('\s*', cmd.strip())
+      cmdtoken = tokens[0]
+      try:
+        COMMANDS[cmdtoken](tokens)
+      except NotLoggedInException:
+        print "You need to be logged in. Type 'login' to do so."
+      except KeyError:
+        print "Unknown command:", cmdtoken
+      #except Exception as ex:
+      #  print "Caught unexpected exception:", ex.value
+      #  exc_type, exc_value, exc_traceback = sys.exc_info()
+      #  traceback.print_exception(exc_type, exc_value, exc_traceback,
+      #                            limit=10, file=sys.stdout)
   except EOFError:
     print
-    __handle__exit([])
+    __handle__exit()
+  except KeyboardInterrupt:
+    print
+    print "Command cancelled. Type Ctrl-D or 'exit' to quit."
