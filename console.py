@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
-# require minimum version
-FBSH_MIN_PYTHON_VERSION = "2.6.0" # major.minor.patchlevel
-class UnsupportedVersionError(EnvironmentError): pass
-try:
-  import platform # added in python2.3
-  if platform.python_version() < FBSH_MIN_PYTHON_VERSION:
-    raise UnsupportedVersionError
-except (UnsupportedVersionError, ImportError):
-    print "Error: fbsh requires python >=", FBSH_MIN_PYTHON_VERSION
-    exit(1)
+# check python version
+import sys
+if sys.version < '2.6':
+  print >> sys.stderr, "ERROR: Python >= 2.6 required"
+  sys.exit(1)
+
+# check for ssl support
+import httplib
+if not hasattr(httplib, 'HTTPS'):
+  print >> sys.stderr, "ERROR: Your python client does not support HTTPS"
+  sys.exit(1)
 
 import atexit, os, readline
-import sys, traceback, time
+import traceback, time
 import getpass, re, json
 
 import fbsh
