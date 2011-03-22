@@ -116,7 +116,7 @@ def __handle__login(args):
     fp = open(tokenfile, 'w')
     fp.write(json.dumps({'access_token':ACCESS_TOKEN,'expires':EXPIRES,'name':NAME}))
     fp.close()
-  except IOError:
+  except IOError as ex:
     pass
 
   print "Successfully logged in as", name
@@ -141,8 +141,8 @@ def __handle__logout(args=[]):
     print "Not logged in."
 
 def __handle__exit(args=[]):
-  if is_logged_in():
-    __handle__logout()
+  #if is_logged_in():
+  #  __handle__logout()
   print "Bye!"
   raise SystemExit
 
