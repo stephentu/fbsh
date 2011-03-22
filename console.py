@@ -146,10 +146,6 @@ def __handle__exit(args=[]):
   print "Bye!"
   raise SystemExit
 
-def __handle__exit(args):
-  print "Bye!"
-  raise SystemExit
-
 __default_indent_incr = lambda indent: indent + '  '
 def __render_feed_item(item, ident='', ident_incr=__default_indent_incr):
 
@@ -268,7 +264,7 @@ class Completer(object):
         self.matches = [s for s in self.options if s and s.startswith(text)]
       else:
         self.matches = self.options[:]
-    
+
     # Return the state'th item from the match list,
     # if we have that many.
     try:
